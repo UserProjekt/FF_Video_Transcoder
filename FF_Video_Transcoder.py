@@ -31,31 +31,16 @@ def list_video_files(directory):
                 video_files.append(os.path.join(dirpath, filename))
     return video_files
 
-# enlarge the Terminal/Powershell window
-def maximize_terminal():
-    current_platform = platform.system()
-
-    if current_platform == "Darwin":  # macOS
-        script = """
-        tell application "Terminal"
-            activate
-            set bounds of front window to {0, 0, 1280, 720}  
-        end tell
-        """
-        os.system(f"osascript -e '{script}'")
-
-    elif current_platform == "Windows":
-        pwshellcmd = '''powershell -command "& {Add-Type -TypeDefinition @'
-        public class P 
-        { 
-            [System.Runtime.InteropServices.DllImport(\\"user32.dll\\")]
-            public static extern bool ShowWindowAsync(System.IntPtr hWnd, int nCmdShow); 
-        }
-        '@ -Language CSharp; $hWnd = (Get-Process -Id $pid).MainWindowHandle; [void] (P::ShowWindowAsync($hWnd, 3))}"'''
-
-
-        os.system(pwshellcmd)
-maximize_terminal()
+# enlarge the Terminal window
+current_platform = platform.system()
+if current_platform == "Darwin":  # macOS
+    script = """
+    tell application "Terminal"
+        activate
+        set bounds of front window to {0, 0, 1280, 720}  
+    end tell
+    """
+    os.system(f"osascript -e '{script}'")
 
 # create Date folder in Proxy Folder
 DateFolderNameList = [DateFolder.name for DateFolder in os.scandir(FootageFolderPath) if DateFolder.is_dir()]
