@@ -45,15 +45,14 @@ def maximize_terminal():
         os.system(f"osascript -e '{script}'")
 
     elif current_platform == "Windows":
-        pwshellcmd = """
-        powershell -command "& {Add-Type -TypeDefinition '
+        pwshellcmd = '''powershell -command "& {Add-Type -TypeDefinition @'
         public class P 
-        {
+        { 
             [System.Runtime.InteropServices.DllImport(\\"user32.dll\\")]
             public static extern bool ShowWindowAsync(System.IntPtr hWnd, int nCmdShow); 
         }
-        ' -Language CSharp; $hWnd = (Get-Process -Id $pid).MainWindowHandle; [void] (P::ShowWindowAsync($hWnd, 3))}"
-        """
+        '@ -Language CSharp; $hWnd = (Get-Process -Id $pid).MainWindowHandle; [void] (P::ShowWindowAsync($hWnd, 3))}"'''
+
 
         os.system(pwshellcmd)
 maximize_terminal()
