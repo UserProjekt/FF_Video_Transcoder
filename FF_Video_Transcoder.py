@@ -87,14 +87,14 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
 
         #setting codec for different OS
         if platform.system() == "Windows":
-            codec_video = "hevc_nvenc"  # for HEVC encoding
+            vcodec = "hevc_nvenc"  # for HEVC encoding
         elif platform.system() == "Darwin":
-            codec_video = "hevc_videotoolbox"
+            vcodec = "hevc_videotoolbox"
         else:
-            codec_video = "libx265"  # default codec for Linux and other platforms
+            vcodec = "libx265"  # default codec for Linux and other platforms
 
         # start the ffmpeg process and monitor its output
-        command = ["ffmpeg", "-y", "-i", VideoFilePath, "-c:v", codec, "-b:v", "5000k", "-pix_fmt", "yuv420p", "-c:a", "libmp3lame", "-b:a", "160k", "-progress", "-", OutputPath]
+        command = ["ffmpeg", "-y", "-i", VideoFilePath, "-c:v", vcodec, "-b:v", "5000k", "-pix_fmt", "yuv420p", "-c:a", "libmp3lame", "-b:a", "160k", "-progress", "-", OutputPath]
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, bufsize=1, encoding="utf-8")
 
         # use tqdm to display the progress bar
