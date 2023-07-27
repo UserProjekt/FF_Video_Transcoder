@@ -72,7 +72,7 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
         VideoFilename = os.path.basename(VideoFilePath)
 
         # Define the video progress bar here
-        max_length = 77
+        max_length = 50
         desc_text = "File: " + VideoFilename
         if len(desc_text) > max_length:
             desc_text = desc_text
