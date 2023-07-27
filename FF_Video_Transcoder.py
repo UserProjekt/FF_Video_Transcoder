@@ -78,13 +78,15 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
         desc_text = desc_text.ljust(max_length_left)  # This pads the string to the desired length
 
         # Right side padding
-        FrameLpd = 10      # frame left padding
-        FrameRpd = 10     # frame right padding
+        FrameSpeedpd = 6  # frame/s padding
+        rate_fmt = " [{rate_fmt:>" + str(FrameSpeedpd) + "}]"
+        FrameLpd = 8      # frame left padding
+        FrameRpd = 8  # frame right padding
 
         frame_fmt = "{n:>" + str(FrameLpd) + "}" + "/{total:<" + str(FrameRpd) + "}"
 
         # define transcoding progress bar
-        pbar = tqdm(total=total_frames, position=0, desc=desc_text + "Progress", unit="frame", dynamic_ncols=True, bar_format='{l_bar}{bar}| [{elapsed}<{remaining}]  ' + frame_fmt + '{rate_fmt}')
+        pbar = tqdm(total=total_frames, position=0, desc=desc_text + "Progress", unit="frame", dynamic_ncols=True, bar_format='{l_bar}{bar}| [{elapsed}<{remaining}]  ' + frame_fmt + rate_fmt)
 
         #display fbar
         fbar.refresh()
