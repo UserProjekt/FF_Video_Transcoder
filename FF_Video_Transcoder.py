@@ -79,10 +79,10 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
 
         # Right side padding
         FrameSpeedpd = 6  # frame/s padding
-        rate_fmt = "[" + "{rate_fmt:>" + str(FrameSpeedpd) + "}]"
+        rate_fmt = "[" + "{rate_fmt:>" + str(FrameSpeedpd) + "}" + "]"
+
         FrameLpd = 8      # frame left padding
         FrameRpd = 8      # frame right padding
-
         frame_fmt = "{n:>" + str(FrameLpd) + "}" + "/{total:<" + str(FrameRpd) + "}"
 
         # define transcoding progress bar
