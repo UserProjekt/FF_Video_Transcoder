@@ -27,6 +27,8 @@ def list_video_files(directory):
     video_files = []
     for dirpath, dirnames, filenames in os.walk(directory):
         for filename in filenames:
+            if filename.startswith("._"):  # Skip macOS metadata files
+                continue
             if os.path.splitext(filename)[1] in video_extensions:
                 video_files.append(os.path.join(dirpath, filename))
     return video_files
