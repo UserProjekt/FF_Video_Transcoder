@@ -72,15 +72,19 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
         VideoFilename = os.path.basename(VideoFilePath)
 
         # Define the video progress bar here
-        max_length = 50
+        # Left side padding
+        max_length_left = 50
         desc_text = "File: " + VideoFilename
-        if len(desc_text) > max_length:
-            desc_text = desc_text
-        else:
-            desc_text = desc_text + ' ' * (max_length - len(desc_text))
+        desc_text = desc_text.ljust(max_length_left)  # This pads the string to the desired length
+
+        # Right side padding
+        FrameLpd = 10      # frame left padding
+        FrameRpd = 10     # frame right padding
+
+        frame_fmt = "{n:>" + str(FrameLpd) + "}" + "/{total:<" + str(FrameRpd) + "}"
 
         # define transcoding progress bar
-        pbar = tqdm(total=total_frames, position=0, desc=desc_text + "Progress", unit="frame", dynamic_ncols=True)
+        pbar = tqdm(total=total_frames, position=0, desc=desc_text + "Progress", unit="frame", dynamic_ncols=True, bar_format='{l_bar}{bar}| [{elapsed}<{remaining}]  ' + frame_fmt + '{rate_fmt}')
 
         #display fbar
         fbar.refresh()
@@ -91,7 +95,7 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
         elif platform.system() == "Darwin":
             vcodec = "hevc_videotoolbox"
         else:
-            vcodec = "libx265"  # default codec for Linux and other platforms
+            vcodec = "libx265"  # Default codec for Linux and other platforms
 
         # start the ffmpeg process and monitor its output
         command = ["ffmpeg", "-y", "-i", VideoFilePath, "-c:v", vcodec, "-b:v", "5000k", "-pix_fmt", "yuv420p", "-c:a", "libmp3lame", "-b:a", "160k", "-progress", "-", OutputPath]
