@@ -87,7 +87,7 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
 
         # start the ffmpeg process and monitor its output
         command = ["ffmpeg", "-y", "-i", VideoFilePath, "-c:v", "hevc_videotoolbox", "-b:v", "5000k", "-pix_fmt", "yuv420p", "-c:a", "libmp3lame", "-b:a", "160k", "-progress", "-", OutputPath]
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, bufsize=1)
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, bufsize=1, encoding="utf-8")
 
         # use tqdm to display the progress bar
         for line in process.stdout:
