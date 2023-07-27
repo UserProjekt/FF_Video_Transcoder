@@ -78,8 +78,8 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
         desc_text = desc_text.ljust(max_length_left)  # This pads the string to the desired length
 
         # Right side padding
-        FrameSpeedpd = 6  # frame/s padding
-        rate_fmt = "[" + "{rate_fmt:>" + str(FrameSpeedpd) + "}" + "]"
+        FrameSpeedpd = 13  # frame/s padding
+        rate_fmt = "[" + "{rate_fmt:>" + str(FrameSpeedpd) + "}]"
 
         FrameLpd = 8      # frame left padding
         FrameRpd = 8      # frame right padding
