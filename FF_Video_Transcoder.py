@@ -49,14 +49,19 @@ DateFolderNameList = [DateFolder.name for DateFolder in os.scandir(FootageFolder
 ProxyDateFolderPathList = []
 TotalDateFolders = len(DateFolderNameList)
 
-# define folder progress bar
-fbar = tqdm(total=TotalDateFolders, position=1, desc="------- Completed Date Folders", unit="folder", ncols=30, bar_format='{l_bar} {n_fmt}/{total_fmt} Folders')
+# Define the video progress bar here
+TotalVideoFiles = 0
+for DateFolderName in DateFolderNameList:
+    FootageDateFolderPath = os.path.join(FootageFolderPath, DateFolderName)
+    TotalVideoFiles += len(list_video_files(FootageDateFolderPath))
+vbar = tqdm(total=TotalVideoFiles, position=1, desc="-------- Completed Video Files", bar_format='{l_bar} {n_fmt}/{total_fmt}')
+
+# transcoding
 for DateFolderName in DateFolderNameList:
     ProxyDateFolderPath = os.path.join(ProxyFolderPath, DateFolderName)
     os.makedirs(ProxyDateFolderPath, exist_ok=True)  # added exist_ok to avoid errors if folder already exists
     ProxyDateFolderPathList.append(ProxyDateFolderPath)
 
-# transcoding
 for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFolderPathList):
     FootageDateFolderPath = os.path.join(FootageFolderPath, DateFolderName)
     VideoFilePathList = list_video_files(FootageDateFolderPath)
@@ -71,7 +76,6 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
         # get the video filename
         VideoFilename = os.path.basename(VideoFilePath)
 
-        # Define the video progress bar here
         # Left side padding
         max_length_left = 50
         desc_text = "File: " + VideoFilename
@@ -82,14 +86,11 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
         rate_fmt = "[" + "{rate_fmt:>" + str(FrameSpeedpd) + "}]"
 
         FrameLpd = 8      # frame left padding
-        FrameRpd = 8      # frame right padding
+        FrameRpd = 9      # frame right padding
         frame_fmt = "{n:>" + str(FrameLpd) + "}" + "/{total:<" + str(FrameRpd) + "}"
 
         # define transcoding progress bar
         pbar = tqdm(total=total_frames, position=0, desc=desc_text + "Progress", unit="frame", dynamic_ncols=True, bar_format='{l_bar}{bar}| [{elapsed}<{remaining}]  ' + frame_fmt + rate_fmt)
-
-        #display fbar
-        fbar.refresh()
 
         #setting codec for different OS
         if platform.system() == "Windows":
@@ -115,5 +116,5 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
                     continue  # skip the problematic line
         pbar.close()
         process.wait()
-    fbar.update(1)
-fbar.close()
+        vbar.update(1)
+vbar.close()
