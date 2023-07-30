@@ -18,7 +18,6 @@ while True:
         break
     else:
         print("Please enter Proxy Folder Path...")
-
 print()
 
 # read video files
