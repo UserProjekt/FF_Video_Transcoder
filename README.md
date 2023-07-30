@@ -19,6 +19,7 @@ FFprobe is required to get the total number of frames in the video for an accura
 ## MacOS
 You can install FFmpeg using brew 
 
+    #using Homebrew (https://brew.sh)
     brew install ffmpeg
 
 
