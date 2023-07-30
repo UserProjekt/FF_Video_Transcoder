@@ -44,7 +44,7 @@ already in FFmpeg suite
 Alternatively, you can download both from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
 
 # Folder Structure
-The industray standard footage folder structure is outlined below. Please ensure that the date-specific folders (e.g., 'Shooting Day 1', 'Shooting Day 2') are situated directly beneath the 'Footage' folder.
+**The industray standard footage folder structure is outlined below. Please ensure that the date-specific folders (e.g., 'Shooting Day 1', 'Shooting Day 2') are situated directly beneath the 'Footage' folder.**
 - 📁 Production
   - 📁 Footage
     - 📁 Shooting Day 1
