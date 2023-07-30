@@ -67,4 +67,4 @@ Upon running this script, the terminal prompts the user to provide the paths for
 
 After the paths are inputted, the script recreate the date-based folder structure within the Proxy folder, It then proceeds to transcode each '.MP4', '.MOV', '.MXF', '.mp4', '.mov', and '.mxf' video file into '.mov' format.
 <img width="1392" alt="Screenshot 2023-07-28 at 22 08 14" src="https://github.com/UserProjekt/FF_Video_Transcoder/assets/78477492/7f3e146b-5907-4015-91c0-28462fa97fb9">
-
+The script actively informs you of the video currently being transcoded, providing details on the ongoing process, including the transcoding progress, elapsed time, remaining time, number of frames, and speed. 
