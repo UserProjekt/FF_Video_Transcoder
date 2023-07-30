@@ -14,7 +14,7 @@ This script requires following to be installed
 
 FFmpeg for transcoding,On macOS, This script uses the 'videotoolbox' for hardware encoding on modern Macs, whether they're Apple Silicon or Intel. On Windows, it uses Nvidia's NVENC to do the job.
 
-FFprobe is required to get the total number of frames in the video for an accurate progress bar representation.
+ffprobe is required to get the total number of frames in the video for an accurate progress bar representation.
 
 ## MacOS
 You can install FFmpeg using brew 
