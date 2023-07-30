@@ -94,7 +94,7 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
 
         #setting codec for different OS
         if platform.system() == "Windows":
-            vcodec = "hevc_nvenc"  # for hardware HEVC encoding
+            vcodec = "hevc_nvenc"  
         elif platform.system() == "Darwin":
             vcodec = "hevc_videotoolbox"
         else:
