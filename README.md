@@ -22,8 +22,6 @@ You can install FFmpeg using brew
     #using Homebrew (https://brew.sh)
     brew install ffmpeg
 
-
-FFprobe
 When you use Homebrew to install FFmpeg (brew install ffmpeg), it will typically install the ffprobe tool alongside it, as ffprobe is part of the FFmpeg suite. So, if you've already installed FFmpeg using Homebrew, you should already have access to ffprobe.
 You can check its presence by typing ffprobe -version in the terminal. If it returns a version number and some details, then you have it installed.
 
