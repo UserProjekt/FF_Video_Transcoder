@@ -8,7 +8,7 @@ It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma 
 # installation
 This script requires following to be installed
 
-    Python 3.10
+    Python 3
     ffmpeg
     ffprobe
 
