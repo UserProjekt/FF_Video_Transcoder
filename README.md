@@ -5,7 +5,7 @@ It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma 
 [FFmpeg hardware encoding/decoding information](https://trac.ffmpeg.org/wiki/HWAccelIntro)
 
 
-# installation
+# Installation
 This script requires following to be installed
 
     Python 3.10
@@ -29,7 +29,7 @@ You can check its presence by typing ffprobe -version in the terminal. If it ret
 
 Alternatively, you can download both from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
 
-## windows
+## Windows
 You can install FFmpeg using package managers:
 
     #using Chocolatey (https://chocolatey.org/)
@@ -64,7 +64,7 @@ In our workflow,We place the Proxy folder alongside the Footage folder,feel free
     - 📁 Shooting Day 2
       - 📁 A002_0210Z9
 
-# usage
+# Usage
 Upon running this script, the terminal prompts the user to provide the paths for the footage folder and the proxy folder. 
 
 After the paths are inputted, the script recreate the date-based folder structure within the Proxy folder, It then proceeds to transcode each '.MP4', '.MOV', '.MXF', '.mp4', '.mov', and '.mxf' video file into '.mov' format.
