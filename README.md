@@ -12,6 +12,8 @@ This script requires following to be installed
     ffmpeg
     ffprobe
 
+Ensure Python 3 is in the PATH
+
 FFmpeg for transcoding,On macOS, This script uses the 'videotoolbox' for hardware encoding on modern Macs, whether they're Apple Silicon or Intel. On Windows, it uses Nvidia's NVENC to do the job.
 
 ffprobe is required to get the total number of frames in the video for an accurate progress bar representation.
@@ -62,6 +64,12 @@ In our workflow,We place the Proxy folder alongside the Footage folder,feel free
       - 📁 A002_0210Z9
 
 # Usage
+
+If you're on macOS, ensure that the script is made executable.
+Navigate to the directory containing the script and type:
+
+    chmod +x FF_Video_Transcoder.py
+    
 Upon running this script, the terminal prompts the user to provide the paths for the footage folder and the proxy folder. 
 
 After the paths are inputted, the script recreate the date-based folder structure within the Proxy folder, It then proceeds to transcode each '.MP4', '.MOV', '.MXF', '.mp4', '.mov', and '.mxf' video file into '.mov' format.
