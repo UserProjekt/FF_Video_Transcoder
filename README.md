@@ -17,7 +17,7 @@ FFmpeg for transcoding,On macOS, This script uses the 'videotoolbox' for hardwar
 ffprobe is required to get the total number of frames in the video for an accurate progress bar representation.
 
 ## MacOS
-You can install FFmpeg using brew 
+You can install FFmpeg using [Homebrew](https://brew.sh) 
 
     #using Homebrew (https://brew.sh)
     brew install ffmpeg
