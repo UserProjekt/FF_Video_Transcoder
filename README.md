@@ -19,7 +19,7 @@ Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)
 
     pip3 install tqdm
 
-FFmpeg for transcoding, on macOS, This script uses the 'videotoolbox' for hardware encoding on modern Macs, whether they're Apple Silicon or Intel. On Windows, it uses Nvidia's NVENC to do the job.
+FFmpeg for transcoding, on macOS, This script uses the 'videotoolbox' for hardware encoding on modern Macs, whether they're Apple Silicon or Intel. On Windows, it uses Nvidia's NVENC for the job.
 
 MediaInfo is required to get the total number of frames in the video for an accurate progress bar representation.
 
