@@ -11,7 +11,7 @@ This script requires following to be installed
     Python 3.10
     tqdm
     ffmpeg
-    ffprobe
+    mediainfo
 
 Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)Please ensure Python 3 is in the PATH.
 
@@ -21,18 +21,20 @@ Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)
 
 FFmpeg for transcoding,On macOS, This script uses the 'videotoolbox' for hardware encoding on modern Macs, whether they're Apple Silicon or Intel. On Windows, it uses Nvidia's NVENC to do the job.
 
-ffprobe is required to get the total number of frames in the video for an accurate progress bar representation.
+mediainfo is required to get the total number of frames in the video for an accurate progress bar representation.
 
 ## MacOS
-You can install FFmpeg using Homebrew
+Install FFmpeg 
 
     #using Homebrew (https://brew.sh)
     brew install ffmpeg
+    
+Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
 
-When you use Homebrew to install FFmpeg (brew install ffmpeg), it will typically install the ffprobe tool alongside it, as ffprobe is part of the FFmpeg suite. So, if you've already installed FFmpeg using Homebrew, you should already have access to ffprobe.
-You can check its presence by typing ffprobe -version in the terminal. If it returns a version number and some details, then you have it installed.
+Install MediaInfo
 
-Alternatively, you can download both from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
+    brew install mediainfo
+
 
 ## Windows
 You can install FFmpeg using package managers:
@@ -43,9 +45,9 @@ You can install FFmpeg using package managers:
     #using Scoop (https://scoop.sh/)
     scoop install ffmpeg
 
-ffprobe already in FFmpeg suite
+Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
 
-Alternatively, you can download both from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
+Download MediaInfo from its official website: [MediaArea - MediaInfo](https://mediaarea.net/en/MediaInfo/Download/Windows)
 
 # Folder Structure
 The industray standard footage folder structure is outlined below. **Please ensure that the date-specific folders (e.g., 'Shooting Day 1', 'Shooting Day 2') are situated directly beneath the 'Footage' folder.**
