@@ -101,7 +101,7 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
             vcodec = "libx265"  # Default codec for Linux and other platforms
 
         # start the ffmpeg process and monitor its output
-        command = ["ffmpeg", "-y", "-i", VideoFilePath, "-c:v", vcodec, "-b:v", "5000k", "-pix_fmt", "yuv420p", "-c:a", "libmp3lame", "-b:a", "160k", "-map", "0:0", "-map", "0:a", "-progress", "-", OutputPath]
+        command = ["ffmpeg", "-y", "-i", VideoFilePath, "-vf", "scale='min(1920,iw)':-1", "-c:v", vcodec, "-b:v", "5000k", "-pix_fmt", "yuv420p", "-c:a", "libmp3lame", "-b:a", "160k", "-map", "0:0", "-map", "0:a", "-progress", "-", OutputPath]
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True, bufsize=1, encoding="utf-8")
 
         # use tqdm to display the progress bar
