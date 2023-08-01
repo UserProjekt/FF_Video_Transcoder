@@ -9,10 +9,15 @@ It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma 
 This script requires following to be installed
 
     Python 3.10
+    tqdm
     ffmpeg
     ffprobe
 
-Ensure Python 3 is in the PATH
+Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)Please ensure Python 3 is in the PATH.
+
+'tqdm' is not a part of the standard library in Python 3. Instead, it's an external library that provides a fast, extensible progress bar for loops and other computations.
+
+    pip3 install tqdm
 
 FFmpeg for transcoding,On macOS, This script uses the 'videotoolbox' for hardware encoding on modern Macs, whether they're Apple Silicon or Intel. On Windows, it uses Nvidia's NVENC to do the job.
 
