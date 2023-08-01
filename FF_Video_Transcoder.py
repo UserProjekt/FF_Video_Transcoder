@@ -18,6 +18,7 @@ while True:
         break
     else:
         print("Please enter Proxy Folder Path...")
+
 print()
 
 # read video files
@@ -69,8 +70,8 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
         OutputPath = os.path.join(ProxyDateFolderPath, OutputName)
 
         # getting the total number of frames in the video
-        ffprobe_cmd = ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=nb_frames", "-of", "default=nokey=1:noprint_wrappers=1", VideoFilePath]
-        total_frames = int(subprocess.check_output(ffprobe_cmd).decode('utf-8').strip())
+        mediainfo_cmd = ["mediainfo", "--Output=Video;%FrameCount%", VideoFilePath]
+        total_frames = int(subprocess.check_output(mediainfo_cmd).decode('utf-8').strip())
 
         # get the video filename
         VideoFilename = os.path.basename(VideoFilePath)
@@ -93,7 +94,7 @@ for DateFolderName, ProxyDateFolderPath in zip(DateFolderNameList, ProxyDateFold
 
         #setting codec for different OS
         if platform.system() == "Windows":
-            vcodec = "hevc_nvenc"  
+            vcodec = "hevc_nvenc"  # for HEVC encoding
         elif platform.system() == "Darwin":
             vcodec = "hevc_videotoolbox"
         else:
