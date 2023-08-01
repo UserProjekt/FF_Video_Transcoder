@@ -29,7 +29,7 @@ Install FFmpeg
     #using Homebrew (https://brew.sh)
     brew install ffmpeg
     
-Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
+Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), and add it to PATH.
 
 Install MediaInfo CLI
 
@@ -45,9 +45,7 @@ You can install FFmpeg using package managers:
     #using Scoop (https://scoop.sh/)
     scoop install ffmpeg
 
-Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
-
-Download MediaInfo CLI from its official website: [MediaArea - MediaInfo](https://mediaarea.net/en/MediaInfo/Download/Windows),and add them to PATH.
+Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), download MediaInfo CLI from its official website: [MediaArea - MediaInfo](https://mediaarea.net/en/MediaInfo/Download/Windows),and then add them to the PATH.
 
 # Folder Structure
 The industray standard footage folder structure is outlined below. **Please ensure that the date-specific folders (e.g., 'Shooting Day 1', 'Shooting Day 2') are situated directly beneath the 'Footage' folder.**
