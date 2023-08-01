@@ -21,7 +21,7 @@ Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)
 
 FFmpeg for transcoding,On macOS, This script uses the 'videotoolbox' for hardware encoding on modern Macs, whether they're Apple Silicon or Intel. On Windows, it uses Nvidia's NVENC to do the job.
 
-mediainfo is required to get the total number of frames in the video for an accurate progress bar representation.
+MediaInfo is required to get the total number of frames in the video for an accurate progress bar representation.
 
 ## MacOS
 Install FFmpeg 
