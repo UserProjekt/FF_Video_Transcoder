@@ -31,7 +31,7 @@ Install FFmpeg
     
 Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
 
-Install MediaInfo
+Install MediaInfo CLI
 
     brew install mediainfo
 
@@ -47,7 +47,7 @@ You can install FFmpeg using package managers:
 
 Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), and add them to PATH.
 
-Download MediaInfo from its official website: [MediaArea - MediaInfo](https://mediaarea.net/en/MediaInfo/Download/Windows)
+Download MediaInfo CLI from its official website: [MediaArea - MediaInfo](https://mediaarea.net/en/MediaInfo/Download/Windows),and add them to PATH.
 
 # Folder Structure
 The industray standard footage folder structure is outlined below. **Please ensure that the date-specific folders (e.g., 'Shooting Day 1', 'Shooting Day 2') are situated directly beneath the 'Footage' folder.**
