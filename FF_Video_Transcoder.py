@@ -5,8 +5,19 @@ import subprocess
 from tqdm import tqdm
 import platform
 
+def clean_path_input(path):
+    # Replace escaped spaces
+    path = path.replace("\\ ", " ")
+    # Replace escaped hash symbols
+    path = path.replace("\\#", "#")
+    # Remove quotes around the path (if any)
+    path = path.strip('" ').strip()
+    return path
+
 while True:
     FootageFolderPath = input('Footage Folder Path:')
+    # Correcting the path input for any escaped spaces
+    FootageFolderPath = clean_path_input(FootageFolderPath)
     if FootageFolderPath.strip():
         break
     else:
@@ -14,6 +25,8 @@ while True:
 
 while True:
     ProxyFolderPath = input('Proxy Folder Path:')
+    # Correcting the path input for any escaped spaces
+    ProxyFolderPath = clean_path_input(ProxyFolderPath)
     if ProxyFolderPath.strip():
         break
     else:
@@ -47,7 +60,7 @@ if current_platform == "Darwin":  # macOS
 # create Date folder in Proxy Folder
 DateFolderNameList = [DateFolder.name for DateFolder in os.scandir(FootageFolderPath) if DateFolder.is_dir()]
 ProxyDateFolderPathList = []
-TotalDateFolders = len(DateFolderNameList)
+#TotalDateFolders = len(DateFolderNameList)
 
 # Define the video progress bar here
 TotalVideoFiles = 0
