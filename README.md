@@ -11,7 +11,7 @@ This script requires following to be installed
     Python 3.10
     tqdm
     ffmpeg
-    mediainfo
+    ffprobe
 
 Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)Please ensure Python 3 is in the PATH.
 
@@ -21,8 +21,6 @@ Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)
 
 FFmpeg for transcoding, on macOS, This script uses the 'videotoolbox' for hardware encoding on modern Macs, whether they're Apple Silicon or Intel. On Windows, it uses Nvidia's NVENC for the job.
 
-MediaInfo is required to get the total number of frames in the video for an accurate progress bar representation.
-
 ## MacOS
 Install FFmpeg 
 
@@ -30,11 +28,6 @@ Install FFmpeg
     brew install ffmpeg
     
 Alternatively, you can download FFmpeg from [here](https://ffmpeg.org/download.html#build-mac), and add it to PATH.
-
-Install MediaInfo CLI
-
-    brew install mediainfo
-
 
 ## Windows
 You can install FFmpeg using package managers:
