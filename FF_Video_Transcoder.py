@@ -44,13 +44,18 @@ if current_platform == "Darwin":  # macOS
     """
     os.system(f"osascript -e '{script}'")
 
-# Sets the codec based on the operating system.
+# Sets the codec and font based on the operating system.
+
+font_win_path = r"C:\Windows\Fonts\Cour.ttf"
+
 if platform.system() == "Windows":
+    font = font_win_path.replace('\\', '/').replace(':', '\\:')
     vcodec = "hevc_nvenc"  # for HEVC encoding.
 elif platform.system() == "Darwin":
+    font = "Courier New"
     vcodec = "hevc_videotoolbox"
-else:
-    vcodec = "libx265"  # Default codec for other platforms.  
+#else:
+#    vcodec = "libx265"  # Default codec for other platforms.  
 
 class VideoTranscoder:
     # Initializes VideoTranscoder with directory paths for footage and proxies.
@@ -117,6 +122,7 @@ class VideoTranscoder:
                     os.makedirs(proxy_dir, exist_ok=True)
                     proxy_file = os.path.join(proxy_dir, os.path.splitext(file)[0] + ".mov")
                     self.FootageFile = footage_file
+                    self.footage_name = os.path.basename(footage_file)
                     self.ProxyFile = proxy_file
                     self.total_frames, self.timecode, self.frame_rate = self.extract_metadata()
                     yield self
@@ -127,7 +133,7 @@ class VideoTranscoder:
         "ffmpeg",
         "-y",  # Overwrite output file without asking
         "-i", self.FootageFile,  # Input file
-        "-vf", "scale='min(1920,iw)':-1,drawtext=fontfile=/System/Library/Fonts/Supplemental/Courier New.ttf:fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=30:y=30:text='{}',drawtext=fontfile=/System/Library/Fonts/Supplemental/Courier New.ttf:fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=w-tw-30:y=30:timecode='{}':rate={}:tc24hmax=1".format(os.path.basename(self.FootageFile), self.timecode, self.frame_rate),
+        "-vf", (f"scale='min(1920,iw)':-1,"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=30:y=30:text='{self.footage_name}',"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=w-tw-30:y=30:timecode='{self.timecode}':rate={self.frame_rate}:tc24hmax=1"),
         "-c:v", vcodec,
         "-b:v", "5000k",  # Video bitrate
         "-pix_fmt", "yuv420p",  # Pixel format
@@ -139,9 +145,9 @@ class VideoTranscoder:
         self.ProxyFile
     ]
         
-        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, encoding='utf-8')
 
-        # Defines a transcoding progress bar
+        # Defines transcoding progress bar
         # Left side padding
         max_length_left = 50
         desc_text = "File: " + os.path.basename(self.FootageFile)
@@ -157,22 +163,36 @@ class VideoTranscoder:
 
         pbar = tqdm(total=self.total_frames, position=0, desc=desc_text + "Progress", unit="frame", dynamic_ncols=True, bar_format='{l_bar}{bar}| [{elapsed}<{remaining}]  ' + frame_fmt + rate_fmt)
 
-        # Uses tqdm to display the progress bar
-        for line in process.stdout:
-            if "frame=" in line:
-                try:
-                    current_frame_str = line.split('frame=')[1].split(' ')[0].strip()
-                    if current_frame_str.isdigit():
-                        current_frame = int(current_frame_str)
-                        pbar.update(current_frame - pbar.n)  # Updates the progress bar with the number of new frames processed
-                except ValueError:
-                    continue  # Skips the problematic line
-        pbar.close()
+        # Use tqdm to display the progress bar
+
+        while True:
+            output = process.stderr.read(100)
+            if output == "" and process.poll() is not None:
+                break
+
+            if output:
+                for line in output.split("\n"):
+                    if "frame=" in line:
+                        try:
+                            current_frame_str = line.split('frame=')[1].split()[0].strip()
+                            if current_frame_str.isdigit():
+                                current_frame = int(current_frame_str)
+                                pbar.update(current_frame - pbar.n)  # Updates the progress bar with the number of new frames processed
+                        except (IndexError, ValueError):
+                            continue  # Skips the problematic line
+
         process.wait()
         if process.returncode == 0:
+            if pbar.n < self.total_frames:
+                pbar.n = self.total_frames
+                pbar.last_print_n = self.total_frames
+                pbar.update(0)  # Force a refresh of the progress bar to show 100%
+            # Update the overall progress bar
             vbar.update(1)
         else:
             print(f"Error during transcoding: {self.FootageFile}")
+
+        pbar.close()
 
 # Caculates the number of total Video files
 TotalVideoFiles = 0
