@@ -6,7 +6,7 @@ It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma 
 
 
 # Update
-Do not support Sony xavc-hs footage
+Do not support Sony XAVC-HS footage.
 
 # Installation
 This script requires following to be installed
