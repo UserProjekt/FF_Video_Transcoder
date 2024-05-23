@@ -1,14 +1,17 @@
 # FF_Video_Transcoder
 This is a python script using FFmpeg for transcoding in video production. 
-It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma subsampling, 8-bit color depth, and a video bitrate of 5Mbps,audio channel are matched source file,bitrate of 160Kbps per track. These settings are optimized for hardware decoding and systems with low I/O performance. Reduced file size is also better for transfer and storage.
+It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma subsampling, 8-bit color depth, a video bitrate of 5Mbps, and filename timecode burn-in,audio channel are matched source file, bitrate of 160Kbps per track. These settings are optimized for hardware decoding and systems with low I/O performance. Reduced file size is also better for transfer and storage.
 
 [FFmpeg hardware encoding/decoding information](https://trac.ffmpeg.org/wiki/HWAccelIntro)
 
 
+# Update
+Do not support Sony xavc-hs footage
+
 # Installation
 This script requires following to be installed
 
-    Python
+    Python 3
     tqdm
     ffmpeg
     mediainfo cli
