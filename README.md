@@ -8,10 +8,10 @@ It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma 
 # Installation
 This script requires following to be installed
 
-    Python 3.10
+    Python
     tqdm
     ffmpeg
-    ffprobe
+    mediainfo cli
 
 Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)Please ensure Python 3 is in the PATH.
 
