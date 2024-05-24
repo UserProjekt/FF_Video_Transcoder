@@ -4,10 +4,6 @@ It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma 
 
 [FFmpeg hardware encoding/decoding information](https://trac.ffmpeg.org/wiki/HWAccelIntro)
 
-
-# Update
-Do not support Sony XAVC-HS footage.
-
 # Installation
 This script requires following to be installed
 
