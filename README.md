@@ -13,7 +13,7 @@ This script requires following to be installed
 
     Python 3
     tqdm
-    ffmpeg
+    ffmpeg 6.1.1
     mediainfo cli
 
 Irrespective of how Python 3 was installed (e.g., via Homebrew, from python.org)Please ensure Python 3 is in the PATH.
