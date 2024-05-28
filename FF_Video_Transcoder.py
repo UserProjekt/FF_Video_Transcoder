@@ -4,6 +4,7 @@ import subprocess
 from tqdm import tqdm
 import platform
 import json
+import re
 
 # Cleans the input path by removing escaped characters and quotes.
 def clean_path_input(path):
@@ -63,11 +64,10 @@ class VideoTranscoder:
         self.FootageFolderPath = FootageFolderPath
         self.ProxyFolderPath = ProxyFolderPath
 
-    # Extracts metadata from the footage file using ffprobe.
+    # Extracts metadata from the footage file using mediainfo.
     def extract_metadata(self):
         command = [
-            "ffprobe", "-v", "quiet", "-print_format", "json",
-            "-show_format", "-show_streams", self.FootageFile
+            "mediainfo", "--Output=JSON", self.FootageFile
         ]
 
         try:
@@ -78,27 +78,25 @@ class VideoTranscoder:
             total_frames = None
             frame_rate = None
 
-            # Checks if timecode exists in format tags.
-            if "format" in metadata and "tags" in metadata["format"]:
-                format_tags = metadata["format"]["tags"]
-                if "timecode" in format_tags:
-                    timecode = format_tags["timecode"]
+            # Checks if timecode exists in the metadata.
+            if "media" in metadata and "track" in metadata["media"]:
+                for track in metadata["media"]["track"]:
+                    if "FrameCount" in track:
+                        total_frames = int(track["FrameCount"])
+                    if "FrameRate" in track:
+                        frame_rate = round(float(track["FrameRate"]))
+                    if "TimeCode_FirstFrame" in track:
+                        timecode = track["TimeCode_FirstFrame"]
 
-            # Checks if timecode exists in any of the stream tags.
-            if "streams" in metadata:
-                for stream in metadata["streams"]:
-                    if "tags" in stream and "timecode" in stream["tags"]:
-                        timecode = stream["tags"]["timecode"]
-                    if "codec_type" in stream and stream["codec_type"] == "video":
-                        if "nb_frames" in stream:
-                            total_frames = int(stream["nb_frames"])
-                        elif "duration_ts" in stream:
-                            total_frames = int(stream["duration_ts"])
-                        if "r_frame_rate" in stream:
-                            frame_rate = round(eval(stream["r_frame_rate"]))
-
-            # Escapes the colons in the timecode.
-            timecode = timecode.replace(':', '\\:')
+            if frame_rate not in [30, 60] and timecode:
+                # Convert drop-frame timecode to non-drop-frame timecode if necessary.
+                if ";" in timecode:
+                    timecode = timecode.replace(';', ':')
+                # Escapes the colons in the timecode.
+                timecode = timecode.replace(':', '\\:')
+            elif timecode:
+                # Escapes both colons and semicolons in the timecode.
+                timecode = timecode.replace(':', '\\:').replace(';', '\\;')
             
             return total_frames, timecode, frame_rate
 
@@ -141,7 +139,7 @@ class VideoTranscoder:
         "-b:a", "160k",  # Audio bitrate
         "-map", "0:v",  # Map video stream
         "-map", "0:a",  # Map audio stream
-        "-progress", "-",  # Output progress
+        "-progress", "pip2",  # Output progress
         self.ProxyFile
     ]
         
@@ -163,31 +161,28 @@ class VideoTranscoder:
 
         pbar = tqdm(total=self.total_frames, position=0, desc=desc_text + "Progress", unit="frame", dynamic_ncols=True, bar_format='{l_bar}{bar}| [{elapsed}<{remaining}]  ' + frame_fmt + rate_fmt)
 
-        # Use tqdm to display the progress bar
+        frame_re = re.compile(r'frame=\s*(\d+)')
 
         while True:
-            output = process.stderr.read(100)
-            if output == "" and process.poll() is not None:
+            line = process.stderr.readline()
+            if line == "" and process.poll() is not None:
                 break
 
-            if output:
-                for line in output.split("\n"):
-                    if "frame=" in line:
-                        try:
-                            current_frame_str = line.split('frame=')[1].split()[0].strip()
-                            if current_frame_str.isdigit():
-                                current_frame = int(current_frame_str)
-                                pbar.update(current_frame - pbar.n)  # Updates the progress bar with the number of new frames processed
-                        except (IndexError, ValueError):
-                            continue  # Skips the problematic line
+            match = frame_re.search(line)
+            if match:
+                try:
+                    current_frame = int(match.group(1))
+                    pbar.update(current_frame - pbar.n)  # Update the progress bar with the number of new frames processed
+                except ValueError:
+                    continue  # Skip the problematic line
 
         process.wait()
+        
+        # Ensure the progress bar is updated to the total frames if the process completes successfully
         if process.returncode == 0:
-            if pbar.n < self.total_frames:
-                pbar.n = self.total_frames
-                pbar.last_print_n = self.total_frames
-                pbar.update(0)  # Force a refresh of the progress bar to show 100%
-            # Update the overall progress bar
+            pbar.n = self.total_frames
+            pbar.last_print_n = self.total_frames
+            pbar.update(0)
             vbar.update(1)
         else:
             print(f"Error during transcoding: {self.FootageFile}")
