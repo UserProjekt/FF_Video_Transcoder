@@ -79,14 +79,24 @@ class VideoTranscoder:
             frame_rate = None
 
             # Checks if timecode exists in the metadata.
+            # First pass to prioritize Video track for FrameCount and FrameRate
             if "media" in metadata and "track" in metadata["media"]:
                 for track in metadata["media"]["track"]:
-                    if "FrameCount" in track:
-                        total_frames = int(track["FrameCount"])
-                    if "FrameRate" in track:
-                        frame_rate = round(float(track["FrameRate"]))
-                    if "TimeCode_FirstFrame" in track:
-                        timecode = track["TimeCode_FirstFrame"]
+                    if track["@type"] == "Video":
+                        if "FrameCount" in track:
+                            total_frames = int(track["FrameCount"])
+                        if "FrameRate" in track:
+                            frame_rate = round(float(track["FrameRate"]))
+                        break  # Stop after finding the Video track
+
+            # Second pass to get TimeCode from any track and fallback for FrameCount and FrameRate
+            for track in metadata["media"]["track"]:
+                if timecode is None and "TimeCode_FirstFrame" in track:
+                    timecode = track["TimeCode_FirstFrame"]
+                if total_frames is None and "FrameCount" in track:
+                    total_frames = int(track["FrameCount"])
+                if frame_rate is None and "FrameRate" in track:
+                    frame_rate = round(float(track["FrameRate"]))
 
             if frame_rate not in [30, 60] and timecode:
                 # Convert drop-frame timecode to non-drop-frame timecode if necessary.
