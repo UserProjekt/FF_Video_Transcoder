@@ -1,6 +1,7 @@
 # FF_Video_Transcoder
-This is a python script using FFmpeg for transcoding in video production. 
-It's set for Full High Definition (FHD) video with H.265 encoding, 4:2:0 chroma subsampling, 8-bit color depth, a video bitrate of 5Mbps, and filename timecode burn-in,audio channel are matched source file, bitrate of 160Kbps per track. These settings are optimized for hardware decoding and systems with low I/O performance. Reduced file size is also better for transfer and storage.
+This is a Python script using FFmpeg for transcoding in video production. It is designed for Full High Definition (FHD) video with options for H.265 (4:2:0, 8-bit, 5Mbps) or ProRes Proxy. The script includes filename and timecode burn-in, and it matches the audio channels of the source file, encoding them as MP3 with 128Kbps per track. These settings are optimized for hardware decoding and systems with low I/O performance. The reduced file size also makes it more efficient for transfer and storage.
+
+Due to an issue with Adobe Premiere, which cannot use hardware decoding for 4:2:0 8-bit H.265 with 8 audio tracks (Sony XAVC-I codec), an auto mode has been implemented to choose the codec based on the number of audio tracks. The script will prompt you to select the preferred codec.
 
 [FFmpeg hardware encoding/decoding information](https://trac.ffmpeg.org/wiki/HWAccelIntro)
 
