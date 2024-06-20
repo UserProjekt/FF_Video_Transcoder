@@ -45,18 +45,32 @@ if current_platform == "Darwin":  # macOS
     """
     os.system(f"osascript -e '{script}'")
 
-# Sets the codec and font based on the operating system.
-
+# Path to the Courier TrueType font on Windows, used for drawing text on the video.
 font_win_path = r"C:\Windows\Fonts\Cour.ttf"
 
+# Prompts the user to choose the codec until a valid choice is made
+while True:
+    print()
+    print("Choose the video codec:")
+    print("1. HEVC")
+    print("2. ProRes Proxy")
+    print("3. Auto (Choose ProRes if footage has more than 4 audio streams)")
+    choice = input("Enter the number of your choice: ")
+    if choice in ["1", "2", "3"]:
+        break
+    else:
+        print("Invalid choice. Please enter 1 for HEVC, 2 for ProRes, or 3 for Auto.")
+print()
+
+# Video codec specifics
 if platform.system() == "Windows":
     font = font_win_path.replace('\\', '/').replace(':', '\\:')
-    vcodec = "hevc_nvenc"  # for HEVC encoding.
 elif platform.system() == "Darwin":
     font = "Courier New"
-    vcodec = "hevc_videotoolbox"
-#else:
-#    vcodec = "libx265"  # Default codec for other platforms.  
+
+def determine_codec(metadata):
+    audio_streams = sum(1 for track in metadata["media"]["track"] if track["@type"] == "Audio")
+    return "2" if audio_streams > 4 else "1"
 
 class VideoTranscoder:
     # Initializes VideoTranscoder with directory paths for footage and proxies.
@@ -108,11 +122,11 @@ class VideoTranscoder:
                 # Escapes both colons and semicolons in the timecode.
                 timecode = timecode.replace(':', '\\:').replace(';', '\\;')
             
-            return total_frames, timecode, frame_rate
+            return total_frames, timecode, frame_rate, metadata
 
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
-            return None, None, None
+            return None, None, None, None
 
     # Iterates through the footage directory, generating a corresponding structure in the proxy directory.
     def iteration(self):
@@ -132,27 +146,61 @@ class VideoTranscoder:
                     self.FootageFile = footage_file
                     self.footage_name = os.path.basename(footage_file)
                     self.ProxyFile = proxy_file
-                    self.total_frames, self.timecode, self.frame_rate = self.extract_metadata()
+                    self.total_frames, self.timecode, self.frame_rate, self.metadata = self.extract_metadata()
                     yield self
         
     # Transcodes a video using FFmpeg, displaying the progress with tqdm.
     def ffmpeg_tqdm(self):
+        if choice == "3":
+            codec_choice = determine_codec(self.metadata)
+        else:
+            codec_choice = choice
+
+        if platform.system() == "Windows":
+            if codec_choice == "1":
+                vcodec = "hevc_nvenc"
+                codec_specific_params = []
+            elif codec_choice == "2":
+                vcodec = "prores_ks"
+                codec_specific_params = [
+                    "-profile:v", "0",       # Prores Proxy
+                    "-quant_mat", "0",       # Sets the quantization matrix to the default
+                    "-qscale:v", "4",        # Sets the quality scale to 4 (good balance between quality and file size)
+                    "-color_range", "1",     # Sets color range / data level flag
+                    "-colorspace", "1",      # Sets color space flag
+                    "-color_trc", "1",       # Sets OETF flag
+                    "-color_primaries", "1", # Sets color primaries flag
+                ]
+        elif platform.system() == "Darwin":
+            if codec_choice == "1":
+                vcodec = "hevc_videotoolbox"
+                codec_specific_params = []
+            elif codec_choice == "2":
+                vcodec = "prores_videotoolbox"
+                codec_specific_params = [
+                    "-profile:v", "0",       # Prores Proxy
+                    "-color_range", "1",     # Sets color range / data level flag
+                    "-colorspace", "1",      # Sets color space flag
+                    "-color_trc", "1",       # Sets OETF flag
+                    "-color_primaries", "1", # Sets color primaries flag
+                ]
+
         command = [
-        "ffmpeg",
-        "-y",  # Overwrite output file without asking
-        "-i", self.FootageFile,  # Input file
-        "-vf", (f"scale='min(1920,iw)':-1,"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=30:y=30:text='{self.footage_name}',"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=w-tw-30:y=30:timecode='{self.timecode}':rate={self.frame_rate}:tc24hmax=1"),
-        "-c:v", vcodec,
-        "-b:v", "5000k",  # Video bitrate
-        "-pix_fmt", "yuv420p",  # Pixel format
-        "-c:a", "libmp3lame",  # Audio codec
-        "-b:a", "160k",  # Audio bitrate
-        "-map", "0:v",  # Map video stream
-        "-map", "0:a",  # Map audio stream
-        "-progress", "pip2",  # Output progress
-        self.ProxyFile
+            "ffmpeg",
+            "-y",  # Overwrite output file without asking
+            "-i", self.FootageFile,  # Input file
+            "-vf", (f"scale='min(1920,iw)':-1,"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=30:y=30:text='{self.footage_name}',"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=w-tw-30:y=30:timecode='{self.timecode}':rate={self.frame_rate}:tc24hmax=1"),
+            "-c:v", vcodec,
+            "-c:a", "libmp3lame",  # Audio codec
+            "-b:a", "160k",        # Audio bitrate
+            "-map", "0:v",         # Maps the video stream
+            "-map", "0:a",         # Maps the audio streams
+            "-progress", "pip2",   # Output progress
+            self.ProxyFile
     ]
-        
+        # Adds codec-specific parameters
+        command.extend(codec_specific_params)
+
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, encoding='utf-8')
 
         # Defines transcoding progress bar
@@ -188,12 +236,11 @@ class VideoTranscoder:
 
         process.wait()
         
-        # Ensure the progress bar is updated to the total frames if the process completes successfully
+        # Ensures the progress bar is updated to the total frames if the process completes successfully
         if process.returncode == 0:
             pbar.n = self.total_frames
             pbar.last_print_n = self.total_frames
             pbar.update(0)
-            vbar.update(1)
         else:
             print(f"Error during transcoding: {self.FootageFile}")
 
@@ -209,6 +256,9 @@ for root, dirs, files in os.walk(FootageFolderPath):
 if __name__ == "__main__":
     Transcoder = VideoTranscoder(FootageFolderPath, ProxyFolderPath)
     vbar = tqdm(total=TotalVideoFiles, position=1, desc="-------- Completed Video Files", bar_format='{l_bar} {n_fmt}/{total_fmt}')
+
     for Transcoding in Transcoder.iteration():
         Transcoding.ffmpeg_tqdm()
+        vbar.update(1)  # Update the total progress bar after processing each file
+
     vbar.close()
