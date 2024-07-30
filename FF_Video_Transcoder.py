@@ -89,6 +89,7 @@ class VideoTranscoder:
             metadata = json.loads(output)
 
             timecode = None
+            burnin_timecode = None
             total_frames = None
             frame_rate = None
 
@@ -107,26 +108,30 @@ class VideoTranscoder:
             for track in metadata["media"]["track"]:
                 if timecode is None and "TimeCode_FirstFrame" in track:
                     timecode = track["TimeCode_FirstFrame"]
+                    burnin_timecode = timecode
                 if total_frames is None and "FrameCount" in track:
                     total_frames = int(track["FrameCount"])
                 if frame_rate is None and "FrameRate" in track:
                     frame_rate = round(float(track["FrameRate"]))
 
-            if frame_rate not in [30, 60] and timecode:
-                # Convert drop-frame timecode to non-drop-frame timecode if necessary.
+            if frame_rate not in [30, 60] and burnin_timecode and timecode:
+                # Converts drop-frame timecode to non-drop-frame timecode if MediaInfo gone wrong.
                 if ";" in timecode:
                     timecode = timecode.replace(';', ':')
+                # Converst drop-frame timecode to non-drop-frame timecode if MediaInfo gone wrong.
+                if ";" in burnin_timecode:
+                    burnin_timecode = burnin_timecode.replace(';', ':')
                 # Escapes the colons in the timecode.
-                timecode = timecode.replace(':', '\\:')
-            elif timecode:
+                burnin_timecode = burnin_timecode.replace(':', '\\:')
+            elif burnin_timecode:
                 # Escapes both colons and semicolons in the timecode.
-                timecode = timecode.replace(':', '\\:').replace(';', '\\;')
+                burnin_timecode = burnin_timecode.replace(':', '\\:').replace(';', '\\;')
             
-            return total_frames, timecode, frame_rate, metadata
+            return total_frames, burnin_timecode, frame_rate, metadata, timecode
 
         except subprocess.CalledProcessError as e:
             print(f"Error: {e}")
-            return None, None, None, None
+            return None, None, None, None, None
 
     # Iterates through the footage directory, generating a corresponding structure in the proxy directory.
     def iteration(self):
@@ -146,12 +151,20 @@ class VideoTranscoder:
                     self.FootageFile = footage_file
                     self.footage_name = os.path.basename(footage_file)
                     self.ProxyFile = proxy_file
-                    self.total_frames, self.timecode, self.frame_rate, self.metadata = self.extract_metadata()
+                    self.total_frames, self.burnin_timecode, self.frame_rate, self.metadata, self.timecode = self.extract_metadata()
+                    # Check if metadata extraction was successful
+                    if self.metadata is None:
+                        print(f"Skipping corrupt file: {self.FootageFile}")
+                        continue
                     yield self
         
     # Transcodes a video using FFmpeg, displaying the progress with tqdm.
     def ffmpeg_tqdm(self):
-        if choice == "3":
+        if self.metadata is None:
+            print(f"Skipping {self.FootageFile} due to metadata extraction error.")
+            return
+
+        if choice == "3": 
             codec_choice = determine_codec(self.metadata)
         else:
             codec_choice = choice
@@ -159,47 +172,77 @@ class VideoTranscoder:
         if platform.system() == "Windows":
             if codec_choice == "1":
                 vcodec = "hevc_nvenc"
-                codec_specific_params = []
+                codec_specific_params = [
+                    "-map", "0",                # Maps every streams
+                    "-timecode", self.timecode,  # Adds original timecode
+                    "-color_range", "1",     # Sets color range / data level flag
+                    "-colorspace", "1",      # Sets color space flag
+                    "-color_trc", "1",       # Sets OETF flag
+                    "-color_primaries", "1", # Sets color primaries flag
+                    "-pix_fmt", "yuv420p",   # 4:2:0 
+                ]
             elif codec_choice == "2":
                 vcodec = "prores_ks"
                 codec_specific_params = [
                     "-profile:v", "0",       # Prores Proxy
+                    "-bits_per_mb", "300",   # Sets bitrate 
                     "-quant_mat", "0",       # Sets the quantization matrix to the default
-                    "-qscale:v", "4",        # Sets the quality scale to 4 (good balance between quality and file size)
                     "-color_range", "1",     # Sets color range / data level flag
                     "-colorspace", "1",      # Sets color space flag
                     "-color_trc", "1",       # Sets OETF flag
                     "-color_primaries", "1", # Sets color primaries flag
+                    "-map", "0:a",
+                    "-map", "0:v",
                 ]
         elif platform.system() == "Darwin":
             if codec_choice == "1":
                 vcodec = "hevc_videotoolbox"
-                codec_specific_params = []
-            elif codec_choice == "2":
-                vcodec = "prores_videotoolbox"
                 codec_specific_params = [
-                    "-profile:v", "0",       # Prores Proxy
+                    "-map", "0",                # Maps every streams
+                    "-timecode", self.timecode,  # Adds original timecode
                     "-color_range", "1",     # Sets color range / data level flag
                     "-colorspace", "1",      # Sets color space flag
                     "-color_trc", "1",       # Sets OETF flag
                     "-color_primaries", "1", # Sets color primaries flag
+                    "-pix_fmt", "yuv420p",   # 4:2:0
+                ]         
+            elif codec_choice == "2":
+                vcodec = "prores_videotoolbox"
+                codec_specific_params = [
+                    "-profile:v", "0",       # Prores Proxy
+                    "-pix_fmt", "yuv422p10le",
+                    "-color_range", "1",     # Sets color range / data level flag
+                    "-colorspace", "1",      # Sets color space flag
+                    "-color_trc", "1",       # Sets OETF flag
+                    "-color_primaries", "1", # Sets color primaries flag
+                    "-map", "0:a",
+                    "-map", "0:v",
                 ]
 
+        # Ensures none of the critical variables are None
+        if self.timecode is None or self.burnin_timecode is None or self.frame_rate is None:
+            print(f"Skipping {self.FootageFile} due to missing critical metadata (timecode, burnin_timecode, or frame_rate).")
+            return
+
+        # Constructs the ffmpeg command
         command = [
             "ffmpeg",
             "-y",  # Overwrite output file without asking
-            "-i", self.FootageFile,  # Input file
-            "-vf", (f"scale='min(1920,iw)':-1,"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=30:y=30:text='{self.footage_name}',"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=w-tw-30:y=30:timecode='{self.timecode}':rate={self.frame_rate}:tc24hmax=1"),
+            "-i", self.FootageFile,  # Input file           
+            "-vf", (f"scale='min(1920,iw)':-1,"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=30:y=30:text='{self.footage_name}',"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=w-tw-30:y=30:timecode='{self.burnin_timecode}':rate={self.frame_rate}:tc24hmax=1"),
             "-c:v", vcodec,
             "-c:a", "libmp3lame",  # Audio codec
-            "-b:a", "160k",        # Audio bitrate
-            "-map", "0:v",         # Maps the video stream
-            "-map", "0:a",         # Maps the audio streams
+            "-b:a", "128k",        # Audio bitrat
             "-progress", "pip2",   # Output progress
-            self.ProxyFile
     ]
-        # Adds codec-specific parameters
+        # Add codec-specific parameters
         command.extend(codec_specific_params)
+
+        # Add the output file at the end
+        command.append(self.ProxyFile)
+
+        # Print the command for debugging purposes
+        #print(f"Running command: {' '.join(command)}")
 
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, encoding='utf-8')
 
