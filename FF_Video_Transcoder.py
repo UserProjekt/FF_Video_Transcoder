@@ -173,8 +173,11 @@ class VideoTranscoder:
             if codec_choice == "1":
                 vcodec = "hevc_nvenc"
                 codec_specific_params = [
-                    "-map", "0",                # Maps every streams
+                    "-map", "0:v",                # Maps every streams
+                    "-map", "0:a",                # Maps every streams
+                    "-map_metadata", "0",                # Maps metadata
                     "-timecode", self.timecode,  # Adds original timecode
+                    "-b:v", "5000k",         # video bitrate
                     "-color_range", "1",     # Sets color range / data level flag
                     "-colorspace", "1",      # Sets color space flag
                     "-color_trc", "1",       # Sets OETF flag
@@ -198,8 +201,11 @@ class VideoTranscoder:
             if codec_choice == "1":
                 vcodec = "hevc_videotoolbox"
                 codec_specific_params = [
-                    "-map", "0",                # Maps every streams
+                    "-map", "0:v",                # Maps every streams
+                    "-map", "0:a",                # Maps every streams
+                    "-map_metadata", "0",                # Maps metadata
                     "-timecode", self.timecode,  # Adds original timecode
+                    "-b:v", "5000k",          # video bitrate
                     "-color_range", "1",     # Sets color range / data level flag
                     "-colorspace", "1",      # Sets color space flag
                     "-color_trc", "1",       # Sets OETF flag
@@ -232,7 +238,7 @@ class VideoTranscoder:
             "-vf", (f"scale='min(1920,iw)':-1,"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=30:y=30:text='{self.footage_name}',"f"drawtext=fontfile='{font}':fontsize=40:fontcolor=white@0.9:box=1:boxcolor=black@0.55:boxborderw=10:x=w-tw-30:y=30:timecode='{self.burnin_timecode}':rate={self.frame_rate}:tc24hmax=1"),
             "-c:v", vcodec,
             "-c:a", "libmp3lame",  # Audio codec
-            "-b:a", "128k",        # Audio bitrat
+            "-b:a", "128k",        # Audio bitrate
             "-progress", "pip2",   # Output progress
     ]
         # Add codec-specific parameters
